@@ -1,0 +1,94 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background-image: url(https://www.pexels.com/photo/plaster-on-a-blue-wall-4710241/);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  color: #003366;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #004ea1;
+  color: white;
+  text-align: center;
+  padding: 25px 0;
+  font-size: 28px;
+  animation: fadeInDown 1s ease-out;
+}
+
+main {
+  max-width: 960px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+.intro {
+  text-align: center;
+  animation: fadeIn 1s ease-in;
+}
+
+.intro p {
+  font-size: 18px;
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto 30px auto;
+}
+
+.images-grid {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.img-card {
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.img-card img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.img-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.img-card p {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.start-btn {
+  display: inline-block;
+  background-color: #0073e6;
+  color: white;
+  text-decoration: none;
+  padding: 15px 35px;
+  font-size: 18px;
+  border-radius: 8px;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.start-btn:hover {
+  background-color: #005bb5;
+  transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
