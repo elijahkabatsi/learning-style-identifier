@@ -1,67 +1,54 @@
-const questionsDiv = document.getElementById("questions");
-const submitBtn = document.getElementById("submit-btn");
-const resultDiv = document.getElementById("result");
+const express = require("express");
+const cors = require("cors");
+const fetch = require("node-fetch");
+require("dotenv").config(); // load .env variables
 
-let userAnswers = {};
+const questions = require("./data/questions");
 
-// Fetch questions from backend
-fetch("http://localhost:3000/api/questions")
-  .then(res => res.json())
-  .then(data => {
-    if(data.success) {
-      data.questions.forEach(q => renderQuestion(q));
-    }
-  });
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-// Render each question
-function renderQuestion(q) {
-  const div = document.createElement("div");
-  div.className = "question";
-  div.innerHTML = `<p>${q.id}. ${q.question}</p>`;
+// Load API key from environment
+const apiKey = process.env.API_KEY;
 
-  const optionsDiv = document.createElement("div");
-  optionsDiv.className = "options";
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", message: "Server running" });
+});
 
-  Object.keys(q.options).forEach(type => {
-    const btn = document.createElement("button");
-    btn.innerText = q.options[type];
-    btn.onclick = () => {
-      userAnswers[q.id] = type;
-      Array.from(optionsDiv.children).forEach(b => b.style.background = "");
-      btn.style.background = "#4caf50";
-      btn.style.color = "#fff";
-    };
-    optionsDiv.appendChild(btn);
-  });
-
-  div.appendChild(optionsDiv);
-  questionsDiv.appendChild(div);
-}
+// Get questions
+app.get("/api/questions", (req, res) => {
+  res.json({ success: true, questions });
+});
 
 // Submit answers
-submitBtn.onclick = () => {
-  const answersArray = Object.values(userAnswers);
-
-  if(answersArray.length !== questionsDiv.children.length) {
-    alert("Please answer all questions!");
-    return;
+app.post("/api/submit", (req, res) => {
+  const answers = req.body.answers;
+  if (!answers || answers.length === 0) {
+    return res.status(400).json({ success: false, message: "No answers provided" });
   }
 
-  fetch("http://localhost:3000/api/submit", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ answers: answersArray })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if(data.success) {
-      resultDiv.innerText = `Your Learning Style: ${data.result.toUpperCase()}`;
-    }
-  });
-};
+  let counts = { visual: 0, auditory: 0, kinesthetic: 0 };
+  answers.forEach(type => counts[type]++);
+  let learningStyle = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
 
-btn.onclick = () => {
-  userAnswers[q.id] = type;
-  Array.from(optionsDiv.children).forEach(b => b.classList.remove("selected"));
-  btn.classList.add("selected");
-};
+  res.json({ success: true, result: learningStyle, counts });
+});
+
+// Fetch tip from API using API key
+app.get("/api/tips", async (req, res) => {
+  try {
+    const response = await fetch(`https://api.adviceslip.com/advice?api_key=${apiKey}`);
+    const data = await response.json();
+    res.json({ tip: data.slip.advice });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch tip" });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
