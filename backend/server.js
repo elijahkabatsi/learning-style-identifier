@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-
+const fetch = require('node-fetch'); // External API fetch
 const questions = require("./data/questions");
 
 const app = express();
@@ -45,6 +45,18 @@ app.post("/api/submit", (req, res) => {
     result: learningStyle,
     counts
   });
+});
+
+// Tips endpoint (must be after app is defined)
+app.get('/api/tips', async (req, res) => {
+  try {
+    const response = await fetch('https://api.adviceslip.com/advice');
+    const data = await response.json();
+    res.json({ tip: data.slip.advice });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch tip' });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
